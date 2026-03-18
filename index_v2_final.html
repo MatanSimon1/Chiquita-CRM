@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chiquita CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen active">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <img src="logo.png" alt="MetricMinds" class="login-logo-img"/>
+      <div class="login-brand">Chiquita CRM</div>
+    </div>
+    <div class="login-card">
+      <h1>כניסה למערכת</h1>
+      <div class="form-group">
+        <label>שם משתמש</label>
+        <input type="text" id="login-username" placeholder="הכנס שם משתמש" autocomplete="username"/>
+      </div>
+      <div class="form-group">
+        <label>סיסמא</label>
+        <div style="position:relative">
+          <input type="password" id="login-password" placeholder="הכנס סיסמא" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-left:38px"/>
+          <button type="button" onclick="togglePassVis()" id="pass-eye" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0;line-height:1">👁</button>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="doLogin()">כניסה</button>
+      <div id="login-error" class="error-msg" style="display:none;">שם משתמש או סיסמא שגויים</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-screen" class="screen">
+  <div class="admin-layout">
+    <div class="admin-sidebar">
+      <div class="admin-logo-wrap">
+        <img src="logo.png" alt="" class="crm-logo-img"/>
+        <span class="brand-txt">Chiquita</span>
+      </div>
+      <div class="admin-menu-label">ניהול</div>
+      <div class="admin-menu">
+        <div class="admin-menu-item active">לקוחות</div>
+      </div>
+      <div style="margin-top:auto">
+        <button class="btn-logout" onclick="doLogout()">התנתק</button>
+      </div>
+    </div>
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div>
+          <div class="admin-page-title">ניהול לקוחות</div>
+          <div id="admin-stats" style="margin-top:3px"></div>
+        </div>
+        <button class="btn-add" onclick="openAddClient()">+ הוסף לקוח</button>
+      </div>
+      <div id="client-list" class="client-list-admin"></div>
+    </div>
+  </div>
+  <div class="admin-toast" id="admin-toast"></div>
+</div>
+
+<!-- CLIENT MODAL -->
+<div class="modal-overlay" id="client-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="client-modal-title">הוסף לקוח</h2>
+      <button class="modal-close" onclick="document.getElementById('client-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cm-id"/>
+      <div class="form-row">
+        <div class="form-group"><label>שם הלקוח / עסק *</label><input type="text" id="cm-name" placeholder="לדוגמה: GYM Dilan"/></div>
+        <div class="form-group"><label>שם משתמש *</label><input type="text" id="cm-username" placeholder="gymdilan"/></div>
+      </div>
+      <div class="form-group"><label>סיסמא *</label><input type="password" id="cm-password" placeholder="סיסמא לכניסה של הלקוח"/></div>
+      <div class="form-group">
+        <label>קישור לגיליון Google *</label>
+        <input type="url" id="cm-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/..."/>
+        <div class="field-hint">הגיליון חייב להיות משותף כ"כל מי שיש לו קישור"</div>
+      </div>
+      <div class="form-group">
+        <label>לוגו הלקוח <span class="optional">(קישור לתמונה — אופציונלי)</span></label>
+        <input type="url" id="cm-logo-url" placeholder="https://..."/>
+        <div class="field-hint">קישור ישיר לתמונה (PNG/JPG)</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>שם לשונית <span class="optional">(ברירת מחדל: Main CRM)</span></label><input type="text" id="cm-sheet-tab" placeholder="Main CRM"/></div>
+        <div class="form-group">
+          <label>ממוצע חודשים שנרשם נשאר</label>
+          <input type="number" id="cm-avg-months" value="5" min="1"/>
+          <div class="field-hint">לחישוב ערך לקוח</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="saveClient()" style="width:auto;padding:8px 20px;margin:0">שמור</button>
+      <button class="btn-cancel" onclick="document.getElementById('client-modal').classList.remove('open')">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- CRM -->
+<div id="crm-screen" class="screen">
+  <div class="sidebar">
+      <!-- Sidebar top: logo + controls -->
+      <div class="sidebar-top">
+        <div class="logo-wrap">
+          <img src="logo.png" alt="" class="crm-logo-img"/>
+          <span class="brand-txt">Chiquita</span>
+        </div>
+        <div style="display:flex;gap:4px">
+          <button class="btn-back" id="btn-back-admin" onclick="goBackAdmin()" style="display:none" title="חזור">←</button>
+          <button class="btn-logout-small" onclick="doLogout()" title="התנתק">⏻</button>
+        </div>
+      </div>
+      <!-- 1. Client name -->
+      <div class="sb-client-block">
+        <div class="sb-client-label">לקוח</div>
+        <div class="sb-client-name" id="s-client-name">—</div>
+      </div>
+
+      <!-- 2. Nav tabs -->
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('leads',this)">לידים</button>
+        <button class="nav-tab" onclick="switchTab('analytics',this)">סטטיסטיקה</button>
+      </div>
+
+      <!-- 3. Period filter -->
+      <div class="sb-period-block">
+        <div class="sb-section-label">תקופה</div>
+        <select id="month-filter" onchange="onMonthFilterChange()" class="month-select">
+          <option value="all">כל הזמן</option>
+        </select>
+      </div>
+
+      <!-- 4. Stats -->
+      <div class="s-stats" id="s-stats"></div>
+
+      <!-- 5. Finance -->
+      <div class="fin-section" id="fin-section" style="display:none;">
+        <div class="fin-title">פיננסים</div>
+        <div class="fin-field">
+          <label id="budget-label">תקציב קמפיין (₪)</label>
+          <input type="number" id="budget" value="0" oninput="onBudgetChange()"/>
+          <div class="fin-hint">לכל חודש בנפרד</div>
+        </div>
+        <div id="fin-results"></div>
+      </div>
+
+    </div>
+  <div class="main-area">
+    <div id="view-leads">
+      <div class="top-bar">
+        <div class="filters-row">
+          <div class="search-wrap">
+            <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="search" placeholder="חיפוש..." oninput="renderTable()"/>
+          </div>
+          <select id="filter-status" onchange="renderTable()">
+            <option value="">כל הסטטוסים</option>
+            <option>ליד חדש</option>
+            <option>ביקש פרטים נוספים בוואטסאפ</option>
+            <option>פולואפ</option>
+            <option>לא רלוונטי</option>
+            <option>נמכר</option>
+          </select>
+
+        </div>
+        <button class="btn-add" onclick="openModal()">+ הוסף ליד</button>
+      </div>
+      <div class="table-wrap desktop-only">
+        <table>
+          <thead><tr>
+            <th onclick="sortBy('date')">תאריך ↕</th>
+            <th onclick="sortBy('name')">שם ↕</th>
+            <th>טלפון</th>
+            <th onclick="sortBy('status')">סטטוס ↕</th>
+            <th>הערות</th>
+            <th>סכום</th>
+            <th>מיקום / עניין</th>
+            <th>איך קנה</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state" style="display:none;"><div>◎</div><div>לא נמצאו לידים</div></div>
+      </div>
+      <div class="cards-wrap mobile-only" id="cards-body"></div>
+      <div class="table-footer">
+        <span id="row-count"></span>
+        <div id="sync-status" class="sync-status"></div>
+      </div>
+      <div class="page-footer">מופעל על ידי <strong>MetricMinds</strong></div>
+    </div>
+    <div id="view-analytics" style="display:none;">
+      <div id="kpi-row" class="kpi-row"></div>
+      <div class="analytics-card" style="margin-bottom:12px;">
+        <div class="analytics-card-title">התפלגות סטטוסים</div>
+        <div id="status-bars"></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">ביצועי מודעות</div>
+        <div id="ad-bars"></div>
+      </div>
+    <div class="page-footer">מופעל על ידי <strong>MetricMinds</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- LEAD MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">הוסף ליד חדש</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>תאריך</label><input type="date" id="f-date"/></div>
+<div class="form-group" style="display:none"><select id="f-platform"><option value="manual">Manual</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>שם מלא *</label><input type="text" id="f-name" placeholder="שם הליד"/></div>
+        <div class="form-group"><label>טלפון *</label><input type="tel" id="f-phone" placeholder="05XXXXXXXX"/></div>
+      </div>
+      <div class="form-group"><label>סטטוס ליד</label>
+        <div class="status-pills">
+          <button class="pill active" data-val="ליד חדש" onclick="selectStatus(this)">ליד חדש</button>
+          <button class="pill" data-val="ביקש פרטים נוספים בוואטסאפ" onclick="selectStatus(this)">ביקש פרטים בווצאפ</button>
+          <button class="pill" data-val="פולואפ" onclick="selectStatus(this)">פולואפ</button>
+          <button class="pill" data-val="לא רלוונטי" onclick="selectStatus(this)">לא רלוונטי</button>
+          <button class="pill" data-val="נמכר" onclick="selectStatus(this)">נמכר ✓</button>
+        </div>
+      </div>
+      <div class="form-group"><label>תיאור נוסף</label><textarea id="f-notes" placeholder="הערות נוספות..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>סכום העסקה (₪)</label><input type="text" id="f-income" placeholder="2500"/></div>
+        <div class="form-group"><label>מתעניין ב / מיקום</label><input type="text" id="f-campaign"/></div>
+      </div>
+      <div class="form-group"><label>איך קנה</label><input type="text" id="f-ad" placeholder="מזומן / אשראי / לינק..."/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="saveLead()" style="width:auto;padding:8px 20px;margin:0"><span id="save-btn-text">שמור לגיליון</span></button>
+      <button class="btn-cancel" onclick="closeModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- INLINE EDIT MODAL -->
+<div class="modal-overlay" id="inline-edit-modal" onclick="if(event.target===this)closeInlineEdit()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>עריכת ליד</h2>
+      <button class="modal-close" onclick="closeInlineEdit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="ie-header-info">
+        <div class="ie-lead-name" id="ie-name-val"></div>
+        <div class="ie-meta">
+          <span id="ie-date"></span>
+          <span id="ie-platform"></span>
+        </div>
+      </div>
+
+      <div class="ie-divider">פרטים לקריאה בלבד</div>
+      <div class="ie-readonly-grid">
+        <div class="ie-readonly-item"><div class="ie-readonly-label">קמפיין</div><div class="ie-readonly-val" id="ie-campaign"></div></div>
+        <div class="ie-readonly-item"><div class="ie-readonly-label">מודעה</div><div class="ie-readonly-val" id="ie-ad"></div></div>
+      </div>
+
+      <div class="ie-divider">ניתן לעריכה</div>
+      <div class="form-row">
+        <div class="form-group"><label>שם</label><input type="text" id="ie-name"/></div>
+        <div class="form-group"><label>טלפון</label><input type="tel" id="ie-phone"/></div>
+      </div>
+      <div class="form-group"><label>סטטוס</label>
+        <div class="status-pills" id="ie-status-pills"></div>
+      </div>
+      <div class="form-group"><label>הערות</label><textarea id="ie-notes" placeholder="הערות נוספות..."></textarea></div>
+      <div class="form-group" id="ie-income-group" style="display:none;"><label>הכנסה חודשית (₪)</label><input type="text" id="ie-income" placeholder="8000"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" id="ie-save-btn" onclick="saveInlineEdit()" style="width:auto;padding:8px 20px;margin:0">שמור שינויים</button>
+      <button class="btn-cancel" onclick="closeInlineEdit()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="users.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
