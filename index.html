@@ -83,9 +83,9 @@
         <div class="filters-row">
           <div class="search-wrap">
             <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input type="text" id="search" placeholder="חיפוש..." oninput="renderTable()"/>
+            <input type="text" id="search" placeholder="חיפוש..." oninput="currentPage=1;renderTable()"/>
           </div>
-          <select id="filter-status" onchange="renderTable()">
+          <select id="filter-status" onchange="currentPage=1;renderTable()">
             <option value="">כל הסטטוסים</option>
             <option>ליד חדש</option>
             <option>ביקש פרטים נוספים בוואטסאפ</option>
@@ -164,7 +164,15 @@
       </div>
       <div class="form-group"><label>הערות</label><textarea id="ie-notes"></textarea></div>
       <div class="form-group" id="ie-income-group" style="display:none;"><label>סכום העסקה (₪)</label><input type="text" id="ie-income" placeholder="2500"/></div>
-      <div class="form-group"><label>איך קנה</label><input type="text" id="ie-ad" placeholder="מזומן / אשראי / לינק..."/></div>
+      <div class="form-group"><label>איך קנה</label>
+        <select id="ie-ad">
+          <option value="">-- בחר --</option>
+          <option value="דרך לינק באשראי">דרך לינק באשראי</option>
+          <option value="העברה בקאיה">העברה בקאיה</option>
+          <option value="רכישה באתר">רכישה באתר</option>
+          <option value="מזומן">מזומן</option>
+        </select>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-primary" id="ie-save-btn" onclick="saveInlineEdit()" style="width:auto;padding:8px 20px;margin:0">שמור שינויים</button>
@@ -201,7 +209,15 @@
       <div class="form-group"><label>הערות</label><textarea id="f-notes"></textarea></div>
       <div class="form-row">
         <div class="form-group"><label>סכום העסקה (₪)</label><input type="text" id="f-income" placeholder="2500"/></div>
-        <div class="form-group"><label>איך קנה</label><input type="text" id="f-ad" placeholder="מזומן / אשראי..."/></div>
+        <div class="form-group"><label>איך קנה</label>
+          <select id="f-ad">
+            <option value="">-- בחר --</option>
+            <option value="דרך לינק באשראי">דרך לינק באשראי</option>
+            <option value="העברה בקאיה">העברה בקאיה</option>
+            <option value="רכישה באתר">רכישה באתר</option>
+            <option value="מזומן">מזומן</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
