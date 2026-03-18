@@ -1,7 +1,43 @@
+function renderPagination(page,total){
+  let el=document.getElementById('pagination-bar');
+  if(!el){
+    el=document.createElement('div');el.id='pagination-bar';
+    el.style.cssText='display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0';
+    document.getElementById('view-leads').appendChild(el);
+  }
+  if(total<=1){el.style.display='none';return;}
+  el.style.display='flex';
+  const pages=[];
+  if(total<=7){for(let i=1;i<=total;i++)pages.push(i);}
+  else{
+    pages.push(1);
+    if(page>3)pages.push('...');
+    for(let i=Math.max(2,page-1);i<=Math.min(total-1,page+1);i++)pages.push(i);
+    if(page<total-2)pages.push('...');
+    pages.push(total);
+  }
+  el.innerHTML=`
+    <button onclick="goPage(${page-1})" ${page<=1?'disabled':''} style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text2);cursor:pointer;font-size:12px;${page<=1?'opacity:.4':''}">→</button>
+    ${pages.map(p=>p==='...'
+      ?`<span style="color:var(--text3);padding:0 4px">...</span>`
+      :`<button onclick="goPage(${p})" style="background:${p===page?'var(--accent)':'none'};color:${p===page?'var(--at)':'var(--text2)'};border:1px solid ${p===page?'var(--accent)':'var(--border)'};border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:${p===page?'700':'400'}">${p}</button>`
+    ).join('')}
+    <button onclick="goPage(${page+1})" ${page>=total?'disabled':''} style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text2);cursor:pointer;font-size:12px;${page>=total?'opacity:.4':''}">←</button>`;
+}
+
+function goPage(p){
+  const total=Math.ceil(getFiltered().length/PAGE_SIZE)||1;
+  currentPage=Math.max(1,Math.min(p,total));
+  renderTable();
+  document.querySelector('.main-area').scrollTop=0;
+}
+
 const HEB_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const STATUSES=['ליד חדש','ביקש פרטים נוספים בוואטסאפ','פולואפ','לא רלוונטי','נמכר'];
 
 let state={leads:[],sortField:'date',sortDir:-1,editingId:null,nextId:1,budgets:{},colMap:null};
+const PAGE_SIZE=50;
+let currentPage=1;
 let selectedMonth='all';
 
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
@@ -190,7 +226,7 @@ function buildMonthFilter(){
   }).join('');
   sel.value=selectedMonth;
 }
-function onMonthFilterChange(){
+function onMonthFilterChange(){currentPage=1;
   selectedMonth=document.getElementById('month-filter').value;
   updateBudgetInput();renderTable();renderSidebar();
   const analyticsOn=document.getElementById('view-analytics').style.display!=='none';
@@ -223,17 +259,16 @@ function renderSidebar(){
 // ── FINANCE ────────────────────────────────────────────────────────────────
 function renderFinance(){
   const l=getFilteredByMonth(state.leads);
-  const budget=getCurrentBudget();const avgM=CHIQUITA_CONFIG.avgMonths||1;
+  const budget=getCurrentBudget();
   const total=l.length,reg=l.filter(x=>x.status==='נמכר').length;
   const costPerLead=total>0&&budget>0?Math.round(budget/total):0;
-  const totalInc=l.filter(x=>x.income&&x.status==='נמכר').reduce((s,x)=>s+(parseFloat(x.income)||0),0);
-  const avgInc=reg>0?Math.round(totalInc/reg):0;
-  const ltv=Math.round(avgInc*avgM);const totalRev=reg*ltv;
+  const totalRev=l.filter(x=>x.income&&x.status==='נמכר').reduce((s,x)=>s+(parseFloat(x.income)||0),0);
+  const avgDeal=reg>0?Math.round(totalRev/reg):0;
   const roas=budget>0?Math.round((totalRev/budget)*100)+'%':'—';
   const el=document.getElementById('fin-results');if(!el)return;
   el.innerHTML=`
     <div class="fin-row"><span class="fin-label">עלות לליד</span><span class="fin-val">₪${costPerLead.toLocaleString()}</span></div>
-    <div class="fin-row"><span class="fin-label">ממוצע עסקה</span><span class="fin-val">₪${avgInc.toLocaleString()}</span></div>
+    <div class="fin-row"><span class="fin-label">ממוצע עסקה</span><span class="fin-val">₪${avgDeal.toLocaleString()}</span></div>
     <div class="fin-row"><span class="fin-label">סה"כ הכנסות</span><span class="fin-val">₪${totalRev.toLocaleString()}</span></div>
     <div class="fin-row"><span class="fin-label">החזר על השקעה</span><span class="fin-val">${roas}</span></div>`;
 }
@@ -297,13 +332,22 @@ function badgeLabel(s){
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function renderTable(){
-  const rows=getFiltered();
+  const allRows=getFiltered();
+  // Reset to page 1 when filter changes
+  const totalPages=Math.ceil(allRows.length/PAGE_SIZE)||1;
+  if(currentPage>totalPages)currentPage=1;
+  const start=(currentPage-1)*PAGE_SIZE;
+  const rows=allRows.slice(start,start+PAGE_SIZE);
   const tbody=document.getElementById('table-body');
   const empty=document.getElementById('empty-state');
   const cards=document.getElementById('cards-body');
-  document.getElementById('row-count').textContent=rows.length+' מתוך '+getFilteredByMonth(state.leads).length+' לידים';
-  if(!rows.length){if(tbody)tbody.innerHTML='';if(empty)empty.style.display='flex';if(cards)cards.innerHTML='<div style="padding:3rem;text-align:center;color:var(--text3)">לא נמצאו לידים</div>';return;}
+  // Row count shows filtered total
+  const filtered=allRows.length;
+  const total=getFilteredByMonth(state.leads).length;
+  document.getElementById('row-count').textContent=`${filtered} לידים${totalPages>1?' · עמוד '+currentPage+' מתוך '+totalPages:''}`;
+  if(!allRows.length){if(tbody)tbody.innerHTML='';if(empty)empty.style.display='flex';if(cards)cards.innerHTML='<div style="padding:3rem;text-align:center;color:var(--text3)">לא נמצאו לידים</div>';renderPagination(0,0);return;}
   if(empty)empty.style.display='none';
+  renderPagination(currentPage,totalPages);
   if(tbody)tbody.innerHTML=rows.map(l=>{
     const isSold=l.status==='נמכר';
     const rowStyle=isSold?'background:rgba(74,222,128,0.06);border-right:3px solid rgba(74,222,128,0.5);':'border-right:3px solid transparent;';
@@ -354,7 +398,7 @@ function openInlineEdit(id){
   document.getElementById('ie-name').value=l.name;
   document.getElementById('ie-notes').value=l.notes;
   document.getElementById('ie-income').value=l.income;
-  document.getElementById('ie-ad').value=l.ad;
+  const ieAd=document.getElementById('ie-ad');if(ieAd)ieAd.value=l.ad||'';
   document.getElementById('ie-date').textContent=l.date||'—';
   document.getElementById('ie-campaign').textContent=l.campaign||'—';
   document.getElementById('ie-status-pills').innerHTML=STATUSES.map(s=>
