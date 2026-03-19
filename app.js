@@ -262,9 +262,6 @@ function onMonthFilterChange(){currentPage=1;
   selectedMonth=document.getElementById('month-filter').value;
   updateBudgetInput();renderTable();renderSidebar();
   const analyticsOn=document.getElementById('view-analytics').style.display!=='none';
-  const finSection=document.getElementById('fin-section');
-  if(finSection&&analyticsOn)finSection.style.display=selectedMonth!=='all'?'block':'none';
-  const analyticsOn=document.getElementById('view-analytics').style.display!=='none';
   if(analyticsOn){renderFinance();renderAnalytics();}
 }
 function getFilteredByMonth(leads){
