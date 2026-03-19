@@ -32,46 +32,10 @@ function goPage(p){
   document.querySelector('.main-area')?.scrollTo(0,0);
 }
 
-function renderPagination(page,total){
-  let el=document.getElementById('pagination-bar');
-  if(!el){
-    el=document.createElement('div');el.id='pagination-bar';
-    el.style.cssText='display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0';
-    document.getElementById('view-leads').appendChild(el);
-  }
-  if(total<=1){el.style.display='none';return;}
-  el.style.display='flex';
-  const pages=[];
-  if(total<=7){for(let i=1;i<=total;i++)pages.push(i);}
-  else{
-    pages.push(1);
-    if(page>3)pages.push('...');
-    for(let i=Math.max(2,page-1);i<=Math.min(total-1,page+1);i++)pages.push(i);
-    if(page<total-2)pages.push('...');
-    pages.push(total);
-  }
-  el.innerHTML=`
-    <button onclick="goPage(${page-1})" ${page<=1?'disabled':''} style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text2);cursor:pointer;font-size:12px;${page<=1?'opacity:.4':''}">→</button>
-    ${pages.map(p=>p==='...'
-      ?`<span style="color:var(--text3);padding:0 4px">...</span>`
-      :`<button onclick="goPage(${p})" style="background:${p===page?'var(--accent)':'none'};color:${p===page?'var(--at)':'var(--text2)'};border:1px solid ${p===page?'var(--accent)':'var(--border)'};border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:${p===page?'700':'400'}">${p}</button>`
-    ).join('')}
-    <button onclick="goPage(${page+1})" ${page>=total?'disabled':''} style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text2);cursor:pointer;font-size:12px;${page>=total?'opacity:.4':''}">←</button>`;
-}
-
-function goPage(p){
-  const total=Math.ceil(getFiltered().length/PAGE_SIZE)||1;
-  currentPage=Math.max(1,Math.min(p,total));
-  renderTable();
-  document.querySelector('.main-area').scrollTop=0;
-}
-
 const HEB_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const STATUSES=['ליד חדש','ביקש פרטים נוספים בוואטסאפ','פולואפ','לא רלוונטי','נמכר'];
 
 let state={leads:[],sortField:'date',sortDir:-1,editingId:null,nextId:1,budgets:{},colMap:null};
-const PAGE_SIZE=50;
-let currentPage=1;
 const PAGE_SIZE=50;
 let currentPage=1;
 let selectedMonth='all';
@@ -294,7 +258,7 @@ function buildMonthFilter(){
   }).join('');
   sel.value=selectedMonth;
 }
-function onMonthFilterChange(){currentPage=1;currentPage=1;
+function onMonthFilterChange(){currentPage=1;
   selectedMonth=document.getElementById('month-filter').value;
   updateBudgetInput();renderTable();renderSidebar();
   const analyticsOn=document.getElementById('view-analytics').style.display!=='none';
