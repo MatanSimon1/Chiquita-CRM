@@ -2,6 +2,40 @@ function renderPagination(page,total){
   let el=document.getElementById('pagination-bar');
   if(!el){
     el=document.createElement('div');el.id='pagination-bar';
+    el.style.cssText='display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0';
+    const footer=document.querySelector('#view-leads .table-footer');
+    if(footer)footer.parentNode.insertBefore(el,footer);
+  }
+  if(total<=1){el.style.display='none';return;}
+  el.style.display='flex';
+  const pages=[];
+  if(total<=7){for(let i=1;i<=total;i++)pages.push(i);}
+  else{
+    pages.push(1);
+    if(page>3)pages.push('...');
+    for(let i=Math.max(2,page-1);i<=Math.min(total-1,page+1);i++)pages.push(i);
+    if(page<total-2)pages.push('...');
+    pages.push(total);
+  }
+  el.innerHTML=`
+    <button onclick="goPage(${page-1})" ${page<=1?'disabled':''} style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2);cursor:pointer;font-size:12px;${page<=1?'opacity:.4':''}">→</button>
+    ${pages.map(p=>p==='...'
+      ?`<span style="color:var(--text3);padding:0 2px">...</span>`
+      :`<button onclick="goPage(${p})" style="background:${p===page?'var(--accent)':'none'};color:${p===page?'var(--at)':'var(--text2)'};border:1px solid ${p===page?'var(--accent)':'var(--border)'};border-radius:6px;padding:4px 9px;cursor:pointer;font-size:12px;font-weight:${p===page?'700':'400'}">${p}</button>`
+    ).join('')}
+    <button onclick="goPage(${page+1})" ${page>=total?'disabled':''} style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2);cursor:pointer;font-size:12px;${page>=total?'opacity:.4':''}">←</button>`;
+}
+function goPage(p){
+  const total=Math.ceil(getFiltered().length/PAGE_SIZE)||1;
+  currentPage=Math.max(1,Math.min(p,total));
+  renderTable();
+  document.querySelector('.main-area')?.scrollTo(0,0);
+}
+
+function renderPagination(page,total){
+  let el=document.getElementById('pagination-bar');
+  if(!el){
+    el=document.createElement('div');el.id='pagination-bar';
     el.style.cssText='display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0';
     document.getElementById('view-leads').appendChild(el);
   }
@@ -36,6 +70,8 @@ const HEB_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','י
 const STATUSES=['ליד חדש','ביקש פרטים נוספים בוואטסאפ','פולואפ','לא רלוונטי','נמכר'];
 
 let state={leads:[],sortField:'date',sortDir:-1,editingId:null,nextId:1,budgets:{},colMap:null};
+const PAGE_SIZE=50;
+let currentPage=1;
 const PAGE_SIZE=50;
 let currentPage=1;
 let selectedMonth='all';
@@ -90,7 +126,20 @@ async function loadCRM(){
   setSyncStatus('טוען...','saving');
   try{
     await fetchFromSheet();
-    const b=await fetchBudgets();state.budgets=b;
+    // Load from localStorage first (instant)
+    const localB={};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith('budget_chiquita_')){
+        const month=k.replace('budget_chiquita_','');
+        localB[month]=parseFloat(localStorage.getItem(k))||0;
+      }
+    }
+    state.budgets=localB;
+    fetchBudgets().then(b=>{
+      Object.keys(b).forEach(k=>{if(!localB[k])state.budgets[k]=b[k];});
+      updateBudgetInput();
+    }).catch(()=>{});
     buildMonthFilter();renderTable();renderSidebar();updateBudgetInput();
     setSyncStatus('נטען ✓','success');startAutoSync();
   }catch(e){setSyncStatus('שגיאה: '+e.message,'error');showToast('שגיאה: '+e.message,'error');}
@@ -114,17 +163,36 @@ async function onBudgetChange(){
   const val=parseFloat(document.getElementById('budget').value)||0;
   const key=getBudgetKey();
   state.budgets[key]=val;
+  localStorage.setItem('budget_chiquita_'+key,val);
   renderFinance();renderAnalytics();
   try{await saveBudget(key,val);}catch{}
 }
 
 function updateBudgetInput(){
   const inp=document.getElementById('budget');if(!inp)return;
-  inp.value=getCurrentBudget()||'';
-  const key=getBudgetKey();
-  let lbl='תקציב קמפיין (₪)';
-  if(key!=='all'){const[y,mo]=key.split('-');lbl='תקציב '+HEB_MONTHS[parseInt(mo)-1]+' '+y+' (₪)';}
-  const lel=document.getElementById('budget-label');if(lel)lel.textContent=lbl;
+  const finField=document.querySelector('.fin-field');
+  let totalDisplay=document.getElementById('budget-total-display');
+  if(selectedMonth==='all'){
+    if(finField)finField.style.display='none';
+    if(!totalDisplay){
+      totalDisplay=document.createElement('div');totalDisplay.id='budget-total-display';
+      totalDisplay.style.cssText='font-size:11px;color:var(--text3);margin-bottom:8px;padding:6px 8px;background:var(--bg3);border-radius:var(--r)';
+      const finSection=document.getElementById('fin-section');
+      const finResults=document.getElementById('fin-results');
+      if(finSection&&finResults)finSection.insertBefore(totalDisplay,finResults);
+    }
+    totalDisplay.style.display='';
+    const total=Object.values(state.budgets).reduce((s,v)=>s+(parseFloat(v)||0),0);
+    totalDisplay.textContent='סה"כ תקציב כל החודשים: ₪'+total.toLocaleString();
+  } else {
+    if(finField)finField.style.display='';
+    if(totalDisplay)totalDisplay.style.display='none';
+    inp.value=getCurrentBudget()||'';
+    const key=getBudgetKey();
+    const[y,mo]=key.split('-');
+    const lel=document.getElementById('budget-label');
+    if(lel)lel.textContent='תקציב '+HEB_MONTHS[parseInt(mo)-1]+' '+y+' (₪)';
+  }
 }
 
 // ── DATE ──────────────────────────────────────────────────────────────────
@@ -211,7 +279,7 @@ function switchTab(tab,btn){
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
   document.getElementById('view-leads').style.display=tab==='leads'?'flex':'none';
   document.getElementById('view-analytics').style.display=tab==='analytics'?'block':'none';
-  document.getElementById('fin-section').style.display=(tab==='analytics'&&selectedMonth!=='all')?'block':'none';
+  document.getElementById('fin-section').style.display=tab==='analytics'?'block':'none';
   if(tab==='analytics'){renderFinance();renderAnalytics();}
 }
 
@@ -226,12 +294,13 @@ function buildMonthFilter(){
   }).join('');
   sel.value=selectedMonth;
 }
-function onMonthFilterChange(){currentPage=1;
+function onMonthFilterChange(){currentPage=1;currentPage=1;
   selectedMonth=document.getElementById('month-filter').value;
   updateBudgetInput();renderTable();renderSidebar();
   const analyticsOn=document.getElementById('view-analytics').style.display!=='none';
   const finSection=document.getElementById('fin-section');
   if(finSection&&analyticsOn)finSection.style.display=selectedMonth!=='all'?'block':'none';
+  const analyticsOn=document.getElementById('view-analytics').style.display!=='none';
   if(analyticsOn){renderFinance();renderAnalytics();}
 }
 function getFilteredByMonth(leads){
@@ -257,9 +326,14 @@ function renderSidebar(){
 }
 
 // ── FINANCE ────────────────────────────────────────────────────────────────
+function getTotalBudget(){
+  if(selectedMonth!=='all') return getCurrentBudget();
+  return Object.values(state.budgets).reduce((s,v)=>s+(parseFloat(v)||0),0);
+}
+
 function renderFinance(){
   const l=getFilteredByMonth(state.leads);
-  const budget=getCurrentBudget();
+  const budget=getTotalBudget();
   const total=l.length,reg=l.filter(x=>x.status==='נמכר').length;
   const costPerLead=total>0&&budget>0?Math.round(budget/total):0;
   const totalRev=l.filter(x=>x.income&&x.status==='נמכר').reduce((s,x)=>s+(parseFloat(x.income)||0),0);
@@ -498,3 +572,17 @@ document.addEventListener('keydown',e=>{
     else if(document.getElementById('modal-overlay').classList.contains('open'))saveLead();
   }
 });
+
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light-mode');
+  localStorage.setItem('crm_theme',isLight?'light':'dark');
+  const btn=document.getElementById('theme-toggle');
+  if(btn)btn.textContent=isLight?'🌙':'☀️';
+}
+function initTheme(){
+  const saved=localStorage.getItem('crm_theme');
+  if(saved==='light')document.body.classList.add('light-mode');
+  const btn=document.getElementById('theme-toggle');
+  if(btn)btn.textContent=document.body.classList.contains('light-mode')?'🌙':'☀️';
+}
+document.addEventListener('DOMContentLoaded',()=>{initTheme();});
