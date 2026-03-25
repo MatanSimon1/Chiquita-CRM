@@ -258,8 +258,6 @@ function buildMonthFilter(){
   }).join('');
   const sel=document.getElementById('month-filter');
   sel.innerHTML=opts;sel.value=selectedMonth;
-  const mobSel=document.getElementById('mobile-month-filter');
-  if(mobSel){mobSel.innerHTML=opts;mobSel.value=selectedMonth;}
 }
 function onMonthFilterChange(){currentPage=1;
   selectedMonth=document.getElementById('month-filter').value;
@@ -412,8 +410,8 @@ function renderTable(){
     <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
       <span class="badge ${badgeClass(l.status)}" style="flex-shrink:0;font-size:10px;padding:2px 6px">${esc(badgeLabel(l.status))}</span>
       <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;justify-content:flex-end">
-        <span class="lead-card-name" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right">${esc(l.name)}</span>
         <span style="font-size:11px;color:var(--text3);flex-shrink:0">${l.date||'—'}</span>
+        <span class="lead-card-name" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right">${esc(l.name)}</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
