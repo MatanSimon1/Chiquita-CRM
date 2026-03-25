@@ -341,9 +341,12 @@ function renderAnalytics(){
 function kpiCard(label,val,sub,color){return`<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-val" style="color:${color}">${val}</div>${sub?`<div class="kpi-sub">${sub}</div>`:''}</div>`;}
 
 // ── TABLE ──────────────────────────────────────────────────────────────────
+function syncSearch(v){const el=document.getElementById('search');if(el)el.value=v;const el2=document.getElementById('search-desktop');if(el2)el2.value=v;}
+function syncStatus(v){const el=document.getElementById('filter-status');if(el)el.value=v;const el2=document.getElementById('filter-status-desktop');if(el2)el2.value=v;}
+
 function getFiltered(){
-  const q=(document.getElementById('search')?.value||'').toLowerCase();
-  const st=document.getElementById('filter-status')?.value||'';
+  const q=(document.getElementById('search')?.value||document.getElementById('search-desktop')?.value||'').toLowerCase();
+  const st=document.getElementById('filter-status')?.value||document.getElementById('filter-status-desktop')?.value||'';
   return getFilteredByMonth(state.leads).filter(l=>{
     if(q&&!l.name.toLowerCase().includes(q)&&!l.phone.includes(q))return false;
     if(st&&l.status!==st)return false;return true;
