@@ -39,30 +39,18 @@
 <!-- CRM -->
 <div id="crm-screen" style="display:none">
   <div class="sidebar">
-    <div class="sidebar-top">
-      <div class="logo-wrap">
-        <img src="logo.png" alt="" class="crm-logo-img"/>
-        <span class="brand-txt">Chiquita</span>
-      </div>
-      <button id="theme-toggle" onclick="toggleTheme()" class="btn-logout-small" title="שינוי מצב תצוגה" style="font-size:14px">☀️</button>
+    <!-- Row 1: logo | client name | buttons -->
+    <div class="sidebar-top" style="display:flex;align-items:center;gap:6px;margin-bottom:.6rem">
+      <img src="logo.png" alt="" class="crm-logo-img"/>
+      <div class="sb-client-name" id="s-client-name" style="flex:1;text-align:center;font-size:15px;font-weight:700;color:var(--text)">—</div>
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn-logout-small" title="מצב תצוגה" style="font-size:14px">☀️</button>
       <button class="btn-logout-small" onclick="doLogout()" title="התנתק">⏻</button>
     </div>
 
-    <div class="sb-client-block">
-      <div class="sb-client-label">לקוח</div>
-      <div class="sb-client-name" id="s-client-name">—</div>
-    </div>
-
-    <div class="nav-tabs">
+    <!-- Row 2: tabs -->
+    <div class="nav-tabs" style="margin-bottom:.5rem">
       <button class="nav-tab active" onclick="switchTab('leads',this)">לידים</button>
       <button class="nav-tab" onclick="switchTab('analytics',this)">סטטיסטיקה</button>
-    </div>
-
-    <div class="sb-period-block">
-      <div class="sb-section-label">תקופה</div>
-      <select id="month-filter" onchange="onMonthFilterChange()" class="month-select">
-        <option value="all">כל הזמן</option>
-      </select>
     </div>
 
     <div class="s-stats" id="s-stats"></div>
