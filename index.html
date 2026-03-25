@@ -138,6 +138,32 @@
       <div class="page-footer">מופעל על ידי <strong>MetricMinds</strong></div>
     </div>
   </div>
+
+  <!-- Mobile slim header (hidden on desktop) -->
+  <div class="mobile-header" id="mobile-header">
+    <div class="mobile-header-right">
+      <img src="logo.png" class="mobile-logo"/>
+      <span class="mobile-client-name" id="mobile-client-name">—</span>
+    </div>
+    <div class="mobile-header-left">
+      <select id="mobile-month-filter" onchange="currentPage=1;selectedMonth=this.value;document.getElementById('month-filter').value=this.value;onMonthFilterChange()" class="mobile-month-select">
+        <option value="all">כל הזמן</option>
+      </select>
+      <button id="mobile-theme-toggle" onclick="toggleTheme()" class="mobile-icon-btn" title="מצב תצוגה">☀️</button>
+      <button onclick="doLogout()" class="mobile-icon-btn" title="התנתק">⏻</button>
+    </div>
+  </div>
+  <!-- Mobile tab bar (bottom) -->
+  <div class="mobile-tab-bar" id="mobile-tab-bar">
+    <button class="mobile-tab active" id="mob-tab-leads" onclick="switchTab('leads',this);document.getElementById('mob-tab-leads').classList.add('active');document.getElementById('mob-tab-stats').classList.remove('active')">
+      <span class="mobile-tab-icon">☰</span>
+      <span>לידים</span>
+    </button>
+    <button class="mobile-tab" id="mob-tab-stats" onclick="switchTab('analytics',this);document.getElementById('mob-tab-stats').classList.add('active');document.getElementById('mob-tab-leads').classList.remove('active')">
+      <span class="mobile-tab-icon">📊</span>
+      <span>סטטיסטיקה</span>
+    </button>
+  </div>
 </div>
 
 <!-- INLINE EDIT -->
