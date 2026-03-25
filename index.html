@@ -58,9 +58,9 @@
       <select id="month-filter" onchange="onMonthFilterChange()" class="month-select">
         <option value="all">כל הזמן</option>
       </select>
-      <div class="search-wrap" style="flex:0 0 36px">
+      <div class="search-wrap" style="flex:1;min-width:0">
         <svg class="search-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" id="search" placeholder="" oninput="currentPage=1;renderTable()" style="padding:5px 6px 5px 22px;width:36px;cursor:pointer" onfocus="this.style.width='120px';this.placeholder='חיפוש...'" onblur="if(!this.value){this.style.width='36px';this.placeholder=''}"/>
+        <input type="text" id="search" placeholder="חיפוש..." oninput="currentPage=1;renderTable()" style="width:100%"/>
       </div>
       <select id="filter-status" onchange="currentPage=1;renderTable()">
         <option value="">סטטוס</option>
