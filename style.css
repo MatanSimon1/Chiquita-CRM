@@ -645,3 +645,73 @@ body.light-mode .sync-status.saving{color:#92600a}
   #filter-status{flex-shrink:0;font-size:11px;padding:6px 4px;max-width:90px}
   .btn-add{flex-shrink:0;font-size:12px;padding:6px 10px;white-space:nowrap}
 }
+
+/* ══════════════════════════════════════
+   MOBILE: slim header + bottom tabs
+══════════════════════════════════════ */
+.mobile-header{display:none}
+.mobile-tab-bar{display:none}
+
+@media(max-width:680px){
+  /* Hide full sidebar on mobile */
+  .sidebar{display:none!important}
+
+  /* Slim top header */
+  .mobile-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 10px;
+    background:var(--bg2);
+    border-bottom:1px solid var(--border);
+    height:44px;flex-shrink:0;
+    position:sticky;top:0;z-index:100;
+  }
+  .mobile-header-right{display:flex;align-items:center;gap:6px}
+  .mobile-logo{width:26px;height:26px;border-radius:6px;object-fit:cover}
+  .mobile-client-name{font-size:13px;font-weight:700;color:var(--text)}
+  .mobile-header-left{display:flex;align-items:center;gap:4px}
+  .mobile-month-select{
+    font-size:11px;padding:4px 5px;
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:6px;color:var(--text);max-width:90px;
+  }
+  .mobile-icon-btn{
+    background:none;border:none;cursor:pointer;
+    font-size:15px;padding:4px;color:var(--text2);
+  }
+
+  /* Bottom tab bar */
+  .mobile-tab-bar{
+    display:flex;position:fixed;bottom:0;left:0;right:0;
+    background:var(--bg2);border-top:1px solid var(--border);
+    height:52px;z-index:100;
+  }
+  .mobile-tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:2px;
+    background:none;border:none;cursor:pointer;
+    font-size:11px;color:var(--text3);padding:4px;
+  }
+  .mobile-tab.active{color:var(--accent);font-weight:700}
+  .mobile-tab-icon{font-size:16px}
+
+  /* CRM screen layout on mobile */
+  #crm-screen{flex-direction:column}
+  .main-area{padding-bottom:52px} /* space for bottom tab */
+
+  /* Top bar compact */
+  .top-bar{padding:5px 8px!important}
+  .filters-row{flex-wrap:nowrap;gap:4px}
+  .search-wrap input{font-size:12px}
+  #filter-status{font-size:11px;max-width:85px}
+  .btn-add{font-size:11px;padding:5px 8px}
+
+  /* Cards */
+  .cards-wrap{padding:5px 6px;padding-bottom:0}
+  .lead-card{margin-bottom:5px!important}
+}
+
+/* Light mode mobile */
+body.light-mode .mobile-header{background:#fff;border-bottom-color:rgba(0,0,0,0.08)}
+body.light-mode .mobile-tab-bar{background:#fff;border-top-color:rgba(0,0,0,0.08)}
+body.light-mode .mobile-month-select{background:#f7f8fc;color:#0f1120}
+body.light-mode .mobile-tab.active{color:#2563eb}
