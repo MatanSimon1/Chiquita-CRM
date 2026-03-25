@@ -279,7 +279,8 @@ function renderSidebar(){
     ip=l.filter(x=>x.status==='פולואפ'||x.status==='ביקש פרטים נוספים בוואטסאפ').length,
     ir=l.filter(x=>x.status==='לא רלוונטי').length,
     reg=l.filter(x=>x.status==='נמכר').length;
-  document.getElementById('s-stats').innerHTML=`
+  const statsEl=document.getElementById('s-stats');
+  if(statsEl)statsEl.innerHTML=`
     <div class="s-stat"><span class="s-stat-label">סה"כ</span><span class="s-stat-val">${total}</span></div>
     <div class="s-stat"><span class="s-stat-label">ליד חדש</span><span class="s-stat-val blue">${nw}</span></div>
     <div class="s-stat"><span class="s-stat-label">בתהליך</span><span class="s-stat-val amber">${ip}</span></div>
@@ -318,21 +319,24 @@ function renderAnalytics(){
   const totalInc=l.filter(x=>x.income&&x.status==='נמכר').reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const avgInc=reg>0?Math.round(totalInc/reg):0;
   const costPerLead=total>0&&budget>0?Math.round(budget/total):0;
-  document.getElementById('kpi-row').innerHTML=`
+  const kpiEl=document.getElementById('kpi-row');
+  if(kpiEl)kpiEl.innerHTML=`
     ${kpiCard('סה"כ לידים',total,'','var(--blue)')}
     ${kpiCard('נמכרו',reg,reg+' מתוך '+total,'var(--green)')}
     ${kpiCard('המרה',conv+'%','','var(--accent)')}
     ${kpiCard('עלות לליד',costPerLead>0?'₪'+costPerLead:'—','','var(--amber)')}
     ${kpiCard('ממוצע עסקה',avgInc>0?'₪'+avgInc.toLocaleString():'—','','var(--green)')}`;
   const statuses=[{s:'ליד חדש',c:'#60a5fa'},{s:'ביקש פרטים נוספים בוואטסאפ',c:'#4ade80'},{s:'פולואפ',c:'#fbbf24'},{s:'לא רלוונטי',c:'#f87171'},{s:'נמכר',c:'#d4ff5c'}];
-  document.getElementById('status-bars').innerHTML=statuses.map(({s,c})=>{
+  const sbEl=document.getElementById('status-bars');
+  if(sbEl)sbEl.innerHTML=statuses.map(({s,c})=>{
     const cnt=l.filter(x=>x.status===s).length;const pct=total>0?Math.round(cnt/total*100):0;
     const label=s==='ביקש פרטים נוספים בוואטסאפ'?'ביקש פרטים בווצאפ':s;
     return`<div class="bar-row"><div class="bar-label-row"><span style="color:var(--text2)">${label}</span><span style="color:${c};font-weight:600">${cnt} (${pct}%)</span></div><div class="bar-track"><div class="bar-fill" style="background:${c};width:${pct}%"></div></div></div>`;
   }).join('');
   const adMap={};l.filter(x=>x.status==='נמכר').forEach(x=>{if(x.ad)adMap[x.ad]=(adMap[x.ad]||0)+1;});
   const ads=Object.entries(adMap).sort((a,b)=>b[1]-a[1]).slice(0,8);const maxAd=ads[0]?ads[0][1]:1;
-  document.getElementById('ad-bars').innerHTML=ads.length?ads.map(([ad,cnt])=>`<div class="bar-row"><div class="bar-label-row"><span style="color:var(--text2)">${ad}</span><span style="color:var(--amber);font-weight:600">${cnt}</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--amber);width:${Math.round(cnt/maxAd*100)}%"></div></div></div>`).join(''):'<div style="color:var(--text3);font-size:12px">אין נתונים עדיין</div>';
+  const abEl=document.getElementById('ad-bars');
+  if(abEl)abEl.innerHTML=ads.length?ads.map(([ad,cnt])=>`<div class="bar-row"><div class="bar-label-row"><span style="color:var(--text2)">${ad}</span><span style="color:var(--amber);font-weight:600">${cnt}</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--amber);width:${Math.round(cnt/maxAd*100)}%"></div></div></div>`).join(''):'<div style="color:var(--text3);font-size:12px">אין נתונים עדיין</div>';
 }
 function kpiCard(label,val,sub,color){return`<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-val" style="color:${color}">${val}</div>${sub?`<div class="kpi-sub">${sub}</div>`:''}</div>`;}
 
@@ -383,7 +387,8 @@ function renderTable(){
   // Row count shows filtered total
   const filtered=allRows.length;
   const total=getFilteredByMonth(state.leads).length;
-  document.getElementById('row-count').textContent=`${filtered} לידים${totalPages>1?' · עמוד '+currentPage+' מתוך '+totalPages:''}`;
+  const rcEl=document.getElementById('row-count');
+  if(rcEl)rcEl.textContent=`${filtered} לידים${totalPages>1?' · עמוד '+currentPage+' מתוך '+totalPages:''}`;
   if(!allRows.length){if(tbody)tbody.innerHTML='';if(empty)empty.style.display='flex';if(cards)cards.innerHTML='<div style="padding:3rem;text-align:center;color:var(--text3)">לא נמצאו לידים</div>';renderPagination(0,0);return;}
   if(empty)empty.style.display='none';
   renderPagination(currentPage,totalPages);
