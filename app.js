@@ -280,13 +280,15 @@ function renderSidebar(){
     ip=l.filter(x=>x.status==='פולואפ'||x.status==='ביקש פרטים נוספים בוואטסאפ').length,
     ir=l.filter(x=>x.status==='לא רלוונטי').length,
     reg=l.filter(x=>x.status==='נמכר').length;
+  const totalSales=l.filter(x=>x.status==='נמכר'&&x.income).reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const statsEl=document.getElementById('s-stats');
   if(statsEl)statsEl.innerHTML=`
     <div class="s-stat"><span class="s-stat-label">סה"כ</span><span class="s-stat-val">${total}</span></div>
     <div class="s-stat"><span class="s-stat-label">ליד חדש</span><span class="s-stat-val blue">${nw}</span></div>
     <div class="s-stat"><span class="s-stat-label">בתהליך</span><span class="s-stat-val amber">${ip}</span></div>
     <div class="s-stat"><span class="s-stat-label">לא רלוונטי</span><span class="s-stat-val red">${ir}</span></div>
-    <div class="s-stat"><span class="s-stat-label">נמכר</span><span class="s-stat-val green">${reg}</span></div>`;
+    <div class="s-stat"><span class="s-stat-label">נמכר</span><span class="s-stat-val green">${reg}</span></div>
+    ${totalSales>0?`<div class="s-stat"><span class="s-stat-label">סה"כ מכירות</span><span class="s-stat-val green" style="font-size:12px">₪${totalSales.toLocaleString()}</span></div>`:''}`;
 }
 
 // ── FINANCE ────────────────────────────────────────────────────────────────
@@ -418,8 +420,8 @@ function renderTable(){
     return`<div class="lead-card${isSold?' lead-card-reg':''}" onclick="openInlineEdit(${l.id})" style="padding:8px 10px;margin-bottom:6px">
     <div style="display:flex;align-items:center;gap:6px;width:100%;direction:rtl">
       <span class="lead-card-name" style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">${esc(l.name)}</span>
-      <span class="badge ${badgeClass(l.status)}" style="flex-shrink:0;font-size:10px;padding:2px 6px">${esc(badgeLabel(l.status))}</span>
-      <span style="font-size:11px;color:var(--text3);flex-shrink:0">${l.date||'—'}</span>
+      <span style="flex:1;display:flex;justify-content:center"><span class="badge ${badgeClass(l.status)}" style="font-size:10px;padding:2px 6px">${esc(badgeLabel(l.status))}</span></span>
+      <span style="font-size:11px;color:var(--text3);flex-shrink:0;flex:1;text-align:left">${l.date||'—'}</span>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
       <span style="font-size:12px;color:var(--text2)">${l.phone}</span>
