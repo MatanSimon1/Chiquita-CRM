@@ -620,3 +620,18 @@ body.light-mode .toast.error{border-color:rgba(192,39,45,.3);color:#c0272d}
 body.light-mode .sync-status.success{color:#0d7a45}
 body.light-mode .sync-status.error{color:#c0272d}
 body.light-mode .sync-status.saving{color:#92600a}
+
+/* ── COMPACT MOBILE ── */
+@media(max-width:680px){
+  .lead-card{padding:8px 10px!important;margin-bottom:5px!important}
+  .cards-wrap{padding:6px 8px}
+  .btn-call-card,.btn-wa-card,.lead-card-edit{padding:4px 8px!important;font-size:12px!important}
+  /* Shrink sidebar on mobile */
+  .sidebar{padding:.5rem .75rem!important}
+  .sb-client-block{padding:.5rem .7rem!important;margin-bottom:.4rem!important}
+  .sb-client-name{font-size:16px!important}
+  .nav-tabs{margin-bottom:.4rem!important}
+  .sb-period-block{margin-bottom:.4rem!important}
+  .month-select{padding:5px 7px!important;font-size:12px!important}
+  .s-stat{padding:3px 0!important;font-size:13px!important}
+}
