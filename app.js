@@ -325,6 +325,8 @@ function renderAnalytics(){
   const totalInc=l.filter(x=>x.income&&x.status==='נמכר').reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const avgInc=reg>0?Math.round(totalInc/reg):0;
   const costPerLead=total>0&&budget>0?Math.round(budget/total):0;
+  // Also compute from sidebar stats
+  const sidebarBudget=getTotalBudget();
   const totalSales=l.filter(x=>x.status==='נמכר'&&x.income).reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const kpiEl=document.getElementById('kpi-row');
   if(kpiEl)kpiEl.innerHTML=`
