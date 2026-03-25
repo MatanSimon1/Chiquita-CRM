@@ -698,3 +698,13 @@ body.light-mode .sync-status.saving{color:#92600a}
 /* KPI cards - slightly larger to show 6 */
 .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 @media(max-width:680px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+
+/* Hide + button in sidebar on desktop only */
+@media(min-width:681px){
+  .desktop-hide{display:none!important}
+  .sidebar-controls-row .month-select{flex:1}
+  .sidebar-controls-row .search-wrap{display:none}
+  .sidebar-controls-row #filter-status{display:none}
+}
+/* Remove old conflicting rules */
+.desktop-period-row,.mobile-controls-row2{display:none!important}
