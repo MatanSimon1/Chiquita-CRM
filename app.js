@@ -144,7 +144,8 @@ function updateBudgetInput(){
       totalDisplay.style.cssText='font-size:11px;color:var(--text3);margin-bottom:8px;padding:6px 8px;background:var(--bg3);border-radius:var(--r)';
       const finSection=document.getElementById('fin-section');
       const finResults=document.getElementById('fin-results');
-      if(finSection&&finResults)finSection.insertBefore(totalDisplay,finResults);
+      if(finSection&&finResults&&finResults.parentNode===finSection)finSection.insertBefore(totalDisplay,finResults);
+      else if(finSection)finSection.appendChild(totalDisplay);
     }
     totalDisplay.style.display='';
     const total=Object.values(state.budgets).reduce((s,v)=>s+(parseFloat(v)||0),0);
@@ -345,8 +346,8 @@ function syncSearch(v){const el=document.getElementById('search');if(el)el.value
 function syncStatus(v){const el=document.getElementById('filter-status');if(el)el.value=v;const el2=document.getElementById('filter-status-desktop');if(el2)el2.value=v;}
 
 function getFiltered(){
-  const q=(document.getElementById('search')?.value||document.getElementById('search-desktop')?.value||'').toLowerCase();
-  const st=document.getElementById('filter-status')?.value||document.getElementById('filter-status-desktop')?.value||'';
+  const q=((document.getElementById('search')||document.getElementById('search-desktop'))?.value||'').toLowerCase();
+  const st=(document.getElementById('filter-status')||document.getElementById('filter-status-desktop'))?.value||'';
   return getFilteredByMonth(state.leads).filter(l=>{
     if(q&&!l.name.toLowerCase().includes(q)&&!l.phone.includes(q))return false;
     if(st&&l.status!==st)return false;return true;
@@ -418,7 +419,7 @@ function renderTable(){
     <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
       <span style="font-size:11px;color:var(--text3);flex-shrink:0">${l.date||'—'}</span>
       <span class="badge ${badgeClass(l.status)}" style="flex-shrink:0;font-size:10px;padding:2px 6px">${esc(badgeLabel(l.status))}</span>
-      <span class="lead-card-name" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;flex:1">${esc(l.name)}</span>
+      <span class="lead-card-name" style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;text-align:right">${esc(l.name)}</span>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
       <span style="font-size:12px;color:var(--text2)">${l.phone}</span>
