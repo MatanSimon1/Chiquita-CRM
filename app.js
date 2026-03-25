@@ -408,11 +408,9 @@ function renderTable(){
     const isSold=l.status==='נמכר';
     return`<div class="lead-card${isSold?' lead-card-reg':''}" onclick="openInlineEdit(${l.id})" style="padding:8px 10px;margin-bottom:6px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+      <span style="font-size:11px;color:var(--text3);flex-shrink:0">${l.date||'—'}</span>
       <span class="badge ${badgeClass(l.status)}" style="flex-shrink:0;font-size:10px;padding:2px 6px">${esc(badgeLabel(l.status))}</span>
-      <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;justify-content:flex-end">
-        <span style="font-size:11px;color:var(--text3);flex-shrink:0">${l.date||'—'}</span>
-        <span class="lead-card-name" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right">${esc(l.name)}</span>
-      </div>
+      <span class="lead-card-name" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;flex:1">${esc(l.name)}</span>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
       <span style="font-size:12px;color:var(--text2)">${l.phone}</span>
