@@ -668,3 +668,6 @@ body.light-mode .sync-status.saving{color:#92600a}
   .top-bar{display:none!important}
   .sidebar-controls-row{flex-wrap:nowrap}
 }
+
+/* Search expand animation */
+.sidebar-controls-row .search-wrap input{transition:width .2s ease;min-width:0}
