@@ -87,6 +87,7 @@ function togglePassVis(){
 async function loadCRM(){
   hideLo();
   document.getElementById('s-client-name').textContent=CHIQUITA_CONFIG.name;
+  const mn=document.getElementById('mobile-client-name');if(mn)mn.textContent=CHIQUITA_CONFIG.name;
   setSyncStatus('טוען...','saving');
   try{
     await fetchFromSheet();
@@ -252,11 +253,13 @@ function buildMonthFilter(){
   const months=new Set();
   state.leads.forEach(l=>{const p=(l.date||'').split('/');if(p.length===3)months.add(p[2]+'-'+p[1].padStart(2,'0'));});
   const sorted=[...months].sort().reverse();
-  const sel=document.getElementById('month-filter');
-  sel.innerHTML='<option value="all">כל הזמן</option>'+sorted.map(m=>{
+  const opts='<option value="all">כל הזמן</option>'+sorted.map(m=>{
     const[y,mo]=m.split('-');return`<option value="${m}">${HEB_MONTHS[parseInt(mo)-1]+' '+y}</option>`;
   }).join('');
-  sel.value=selectedMonth;
+  const sel=document.getElementById('month-filter');
+  sel.innerHTML=opts;sel.value=selectedMonth;
+  const mobSel=document.getElementById('mobile-month-filter');
+  if(mobSel){mobSel.innerHTML=opts;mobSel.value=selectedMonth;}
 }
 function onMonthFilterChange(){currentPage=1;
   selectedMonth=document.getElementById('month-filter').value;
@@ -407,11 +410,11 @@ function renderTable(){
     const isSold=l.status==='נמכר';
     return`<div class="lead-card${isSold?' lead-card-reg':''}" onclick="openInlineEdit(${l.id})" style="padding:8px 10px;margin-bottom:6px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-      <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1">
-        <span class="badge ${badgeClass(l.status)}" style="flex-shrink:0;font-size:10px;padding:2px 6px">${esc(badgeLabel(l.status))}</span>
-        <span class="lead-card-name" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.name)}</span>
+      <span class="badge ${badgeClass(l.status)}" style="flex-shrink:0;font-size:10px;padding:2px 6px">${esc(badgeLabel(l.status))}</span>
+      <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;justify-content:flex-end">
+        <span class="lead-card-name" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right">${esc(l.name)}</span>
+        <span style="font-size:11px;color:var(--text3);flex-shrink:0">${l.date||'—'}</span>
       </div>
-      <span style="font-size:11px;color:var(--text3);flex-shrink:0">${l.date||'—'}</span>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
       <span style="font-size:12px;color:var(--text2)">${l.phone}</span>
@@ -548,13 +551,16 @@ document.addEventListener('keydown',e=>{
 function toggleTheme(){
   const isLight=document.body.classList.toggle('light-mode');
   localStorage.setItem('crm_theme',isLight?'light':'dark');
-  const btn=document.getElementById('theme-toggle');
-  if(btn)btn.textContent=isLight?'🌙':'☀️';
+  ['theme-toggle','mobile-theme-toggle'].forEach(id=>{
+    const btn=document.getElementById(id);if(btn)btn.textContent=isLight?'🌙':'☀️';
+  });
 }
 function initTheme(){
   const saved=localStorage.getItem('crm_theme');
   if(saved==='light')document.body.classList.add('light-mode');
-  const btn=document.getElementById('theme-toggle');
-  if(btn)btn.textContent=document.body.classList.contains('light-mode')?'🌙':'☀️';
+  const isLight=document.body.classList.contains('light-mode');
+  ['theme-toggle','mobile-theme-toggle'].forEach(id=>{
+    const btn=document.getElementById(id);if(btn)btn.textContent=isLight?'🌙':'☀️';
+  });
 }
 document.addEventListener('DOMContentLoaded',()=>{initTheme();});
