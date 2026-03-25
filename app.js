@@ -344,7 +344,7 @@ function getFiltered(){
     if(st&&l.status!==st)return false;return true;
   }).sort((a,b)=>{
     if(state.sortField==='rowIndex'){
-      return (b.rowIndex-a.rowIndex)*state.sortDir;
+      return (b.rowIndex-a.rowIndex)*state.sortDir*-1;
     }
     let av=a[state.sortField]||'',bv=b[state.sortField]||'';
     if(state.sortField==='date'){
