@@ -1,13 +1,8 @@
 function renderPagination(page,total){
-  let el=document.getElementById('pagination-bar');
-  if(!el){
-    el=document.createElement('div');el.id='pagination-bar';
-    el.style.cssText='display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0;flex-wrap:wrap';
-    // Insert before table-footer (works for both desktop and mobile)
-    const footer=document.querySelector('#view-leads .table-footer');
-    if(footer)footer.parentNode.insertBefore(el,footer);
-    else document.getElementById('view-leads')?.appendChild(el);
-  }
+  const el=document.getElementById('pagination-bar');
+  if(!el)return;
+  if(total<=1){el.style.display='none';return;}
+  el.style.display='flex';
   if(total<=1){el.style.display='none';return;}
   el.style.display='flex';
   const pages=[];
@@ -109,11 +104,17 @@ async function loadCRM(){
     state.budgets=localB;
     // Always load from server - server is source of truth across devices
     fetchBudgets().then(b=>{
-      // Merge: server wins, local only fills gaps
-      state.budgets={...b,...localB};
+      // Server wins over local
+      state.budgets={...localB,...b};
+      // Save server budgets to localStorage for next time
+      Object.keys(b).forEach(k=>{
+        if(parseFloat(b[k])>0)localStorage.setItem('budget_chiquita_'+k,b[k]);
+      });
       updateBudgetInput();renderSidebar();
-      // Re-render analytics if open
-      if(document.getElementById('view-analytics').style.display!=='none'){renderFinance();renderAnalytics();}
+      // Always re-render analytics with fresh budgets
+      if(document.getElementById('view-analytics').style.display!=='none'){
+        renderFinance();renderAnalytics();
+      }
     }).catch(()=>{});
     buildMonthFilter();renderTable();renderSidebar();updateBudgetInput();
     setSyncStatus('נטען ✓','success');startAutoSync();
@@ -256,7 +257,14 @@ function switchTab(tab,btn){
   document.getElementById('view-leads').style.display=tab==='leads'?'flex':'none';
   document.getElementById('view-analytics').style.display=tab==='analytics'?'block':'none';
   document.getElementById('fin-section').style.display=tab==='analytics'?'block':'none';
-  if(tab==='analytics'){renderFinance();renderAnalytics();}
+  if(tab==='analytics'){
+    renderFinance();renderAnalytics();
+    // Refresh budgets from server to ensure cost per lead is accurate
+    fetchBudgets().then(b=>{
+      state.budgets={...state.budgets,...b};
+      updateBudgetInput();renderFinance();renderAnalytics();
+    }).catch(()=>{});
+  }
 }
 
 // ── MONTH FILTER ───────────────────────────────────────────────────────────
