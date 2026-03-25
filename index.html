@@ -53,11 +53,14 @@
       <button class="nav-tab" onclick="switchTab('analytics',this)">סטטיסטיקה</button>
     </div>
 
-    <!-- Row 3: period + search + status + add -->
-    <div class="sidebar-controls-row">
-      <select id="month-filter" onchange="onMonthFilterChange()" class="month-select">
+    <!-- Period filter - desktop: full width, mobile: compact row -->
+    <div class="desktop-period-row">
+      <select id="month-filter" onchange="onMonthFilterChange()" class="month-select" style="width:100%">
         <option value="all">כל הזמן</option>
       </select>
+    </div>
+    <!-- Mobile only: search + status + add in one row -->
+    <div class="mobile-controls-row2">
       <div class="search-wrap" style="flex:1;min-width:0">
         <svg class="search-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="search" placeholder="חיפוש..." oninput="currentPage=1;renderTable()" style="width:100%"/>
@@ -70,7 +73,7 @@
         <option>לא רלוונטי</option>
         <option>נמכר</option>
       </select>
-      <button class="btn-add" onclick="openModal()" style="padding:5px 8px;font-size:12px;white-space:nowrap">+</button>
+      <button class="btn-add" onclick="openModal()" style="padding:5px 8px;font-size:13px;font-weight:700;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>
     </div>
 
     <div class="s-stats" id="s-stats"></div>
