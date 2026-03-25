@@ -2,9 +2,11 @@ function renderPagination(page,total){
   let el=document.getElementById('pagination-bar');
   if(!el){
     el=document.createElement('div');el.id='pagination-bar';
-    el.style.cssText='display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0';
+    el.style.cssText='display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0;flex-wrap:wrap';
+    // Insert before table-footer (works for both desktop and mobile)
     const footer=document.querySelector('#view-leads .table-footer');
     if(footer)footer.parentNode.insertBefore(el,footer);
+    else document.getElementById('view-leads')?.appendChild(el);
   }
   if(total<=1){el.style.display='none';return;}
   el.style.display='flex';
@@ -105,9 +107,13 @@ async function loadCRM(){
       }
     }
     state.budgets=localB;
+    // Always load from server - server is source of truth across devices
     fetchBudgets().then(b=>{
-      Object.keys(b).forEach(k=>{if(!localB[k])state.budgets[k]=b[k];});
-      updateBudgetInput();
+      // Merge: server wins, local only fills gaps
+      state.budgets={...b,...localB};
+      updateBudgetInput();renderSidebar();
+      // Re-render analytics if open
+      if(document.getElementById('view-analytics').style.display!=='none'){renderFinance();renderAnalytics();}
     }).catch(()=>{});
     buildMonthFilter();renderTable();renderSidebar();updateBudgetInput();
     setSyncStatus('נטען ✓','success');startAutoSync();
