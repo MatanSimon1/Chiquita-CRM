@@ -713,3 +713,14 @@ body.light-mode .sync-status.saving{color:#92600a}
 @media(max-width:680px){
   #pagination-bar button{padding:7px 12px!important;font-size:13px!important;min-width:36px}
 }
+
+/* Fix mobile pagination visibility */
+@media(max-width:680px){
+  /* Cards should NOT scroll internally - let the whole page scroll */
+  .cards-wrap{overflow-y:visible!important;flex:none!important}
+  #view-leads{overflow:visible!important}
+  .main-area{overflow:visible!important}
+  #crm-screen{overflow-y:auto!important;height:100vh}
+  /* Pagination visible */
+  #pagination-bar{display:flex!important}
+}
