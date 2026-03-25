@@ -35,7 +35,7 @@ function goPage(p){
 const HEB_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const STATUSES=['ליד חדש','ביקש פרטים נוספים בוואטסאפ','פולואפ','לא רלוונטי','נמכר'];
 
-let state={leads:[],sortField:'date',sortDir:-1,editingId:null,nextId:1,budgets:{},colMap:null};
+let state={leads:[],sortField:'rowIndex',sortDir:-1,editingId:null,nextId:1,budgets:{},colMap:null};
 const PAGE_SIZE=50;
 let currentPage=1;
 let selectedMonth='all';
@@ -343,6 +343,9 @@ function getFiltered(){
     if(q&&!l.name.toLowerCase().includes(q)&&!l.phone.includes(q))return false;
     if(st&&l.status!==st)return false;return true;
   }).sort((a,b)=>{
+    if(state.sortField==='rowIndex'){
+      return (b.rowIndex-a.rowIndex)*state.sortDir;
+    }
     let av=a[state.sortField]||'',bv=b[state.sortField]||'';
     if(state.sortField==='date'){
       const toYMD=s=>{const p=s.split('/');return p.length===3?p[2]+p[1]+p[0]:s;};
@@ -402,16 +405,24 @@ function renderTable(){
   </tr>`;}).join('');
   if(cards)cards.innerHTML=rows.map(l=>{
     const isSold=l.status==='נמכר';
-    return`<div class="lead-card${isSold?' lead-card-reg':''}" onclick="openInlineEdit(${l.id})">
-    <div class="lead-card-top"><div class="lead-card-name">${esc(l.name)}</div><div class="lead-card-date">${l.date||'—'}</div></div>
-    <div class="lead-card-phone">${l.phone}</div>
-    <div class="lead-card-row"><span class="badge ${badgeClass(l.status)}">${esc(badgeLabel(l.status))}</span>${isSold&&l.income?'<span style="color:var(--green);font-size:12px;font-family:monospace">₪'+esc(l.income)+'</span>':''}</div>
-    ${l.notes?'<div style="font-size:12px;color:var(--text2);margin-top:6px">'+esc(l.notes)+'</div>':''}
-    <div style="display:flex;gap:6px;margin-top:10px">
-      <button class="lead-card-edit" style="flex:2" onclick="event.stopPropagation();openInlineEdit(${l.id})">ערוך ←</button>
-      <button class="btn-call-card" onclick="event.stopPropagation();callLead('${l.phone}')">📞</button>
-      <button class="btn-wa-card" onclick="event.stopPropagation();waLead('${l.phone}')">💬</button>
+    return`<div class="lead-card${isSold?' lead-card-reg':''}" onclick="openInlineEdit(${l.id})" style="padding:8px 10px;margin-bottom:6px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+      <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1">
+        <span class="badge ${badgeClass(l.status)}" style="flex-shrink:0;font-size:10px;padding:2px 6px">${esc(badgeLabel(l.status))}</span>
+        <span class="lead-card-name" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.name)}</span>
+      </div>
+      <span style="font-size:11px;color:var(--text3);flex-shrink:0">${l.date||'—'}</span>
     </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+      <span style="font-size:12px;color:var(--text2)">${l.phone}</span>
+      <div style="display:flex;gap:4px">
+        <button class="btn-call-card" onclick="event.stopPropagation();callLead('${l.phone}')" style="padding:4px 8px;font-size:13px">📞</button>
+        <button class="btn-wa-card" onclick="event.stopPropagation();waLead('${l.phone}')" title="WhatsApp" style="color:#25D366;padding:4px 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.528 5.845L.057 23.5a.5.5 0 00.613.613l5.701-1.476A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.686-.516-5.21-1.41l-.373-.217-3.865 1.001 1.023-3.771-.234-.386A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg></button>
+        <button class="lead-card-edit" onclick="event.stopPropagation();openInlineEdit(${l.id})" style="padding:4px 8px;font-size:11px">ערוך ←</button>
+      </div>
+    </div>
+    ${isSold&&l.income?'<div style="font-size:11px;color:var(--green);margin-top:3px">₪'+esc(l.income)+'</div>':''}
+    ${l.notes?'<div style="font-size:11px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(l.notes)+'</div>':''}
   </div>`;}).join('');
 }
 function sortBy(f){if(state.sortField===f)state.sortDir*=-1;else{state.sortField=f;state.sortDir=1;}renderTable();}
