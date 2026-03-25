@@ -280,7 +280,6 @@ function renderSidebar(){
     ip=l.filter(x=>x.status==='פולואפ'||x.status==='ביקש פרטים נוספים בוואטסאפ').length,
     ir=l.filter(x=>x.status==='לא רלוונטי').length,
     reg=l.filter(x=>x.status==='נמכר').length;
-  const totalSales=l.filter(x=>x.status==='נמכר'&&x.income).reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const statsEl=document.getElementById('s-stats');
   if(statsEl)statsEl.innerHTML=`
     <div class="s-stat"><span class="s-stat-label">סה"כ</span><span class="s-stat-val">${total}</span></div>
@@ -288,7 +287,7 @@ function renderSidebar(){
     <div class="s-stat"><span class="s-stat-label">בתהליך</span><span class="s-stat-val amber">${ip}</span></div>
     <div class="s-stat"><span class="s-stat-label">לא רלוונטי</span><span class="s-stat-val red">${ir}</span></div>
     <div class="s-stat"><span class="s-stat-label">נמכר</span><span class="s-stat-val green">${reg}</span></div>
-    ${totalSales>0?`<div class="s-stat"><span class="s-stat-label">סה"כ מכירות</span><span class="s-stat-val green" style="font-size:12px">₪${totalSales.toLocaleString()}</span></div>`:''}`;
+    `;
 }
 
 // ── FINANCE ────────────────────────────────────────────────────────────────
