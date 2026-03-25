@@ -319,23 +319,21 @@ function renderFinance(){
 // ── ANALYTICS ─────────────────────────────────────────────────────────────
 function renderAnalytics(){
   const l=getFilteredByMonth(state.leads);
-  const budget=getCurrentBudget();
+  const budget=getTotalBudget();
   const total=l.length,reg=l.filter(x=>x.status==='נמכר').length;
   const conv=total>0?Math.round((reg/total)*100):0;
   const totalInc=l.filter(x=>x.income&&x.status==='נמכר').reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const avgInc=reg>0?Math.round(totalInc/reg):0;
   const costPerLead=total>0&&budget>0?Math.round(budget/total):0;
-  // Also compute from sidebar stats
-  const sidebarBudget=getTotalBudget();
   const totalSales=l.filter(x=>x.status==='נמכר'&&x.income).reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const kpiEl=document.getElementById('kpi-row');
   if(kpiEl)kpiEl.innerHTML=`
-    ${kpiCard('סה"כ לידים',total,'','var(--blue)')}
-    ${kpiCard('נמכרו',reg,reg+' מתוך '+total,'var(--green)')}
-    ${kpiCard('המרה',conv+'%','','var(--accent)')}
-    ${kpiCard('עלות לליד',costPerLead>0?'₪'+costPerLead:'—','','var(--amber)')}
-    ${kpiCard('ממוצע עסקה',avgInc>0?'₪'+avgInc.toLocaleString():'—','','var(--green)')}
-    ${kpiCard('סה"כ מכירות',totalSales>0?'₪'+totalSales.toLocaleString():'—','','var(--green)')}`;
+    ${kpiCard('סה"כ לידים',total,'','#60a5fa')}
+    ${kpiCard('נמכרו',reg,reg+' מתוך '+total,'#4ade80')}
+    ${kpiCard('המרה',conv+'%','','#e879f9')}
+    ${kpiCard('עלות לליד',costPerLead>0?'₪'+costPerLead:'—','','#fbbf24')}
+    ${kpiCard('ממוצע עסקה',avgInc>0?'₪'+avgInc.toLocaleString():'—','','#34d399')}
+    ${kpiCard('סה"כ מכירות',totalSales>0?'₪'+totalSales.toLocaleString():'—','','#a78bfa')}`;
   const statuses=[{s:'ליד חדש',c:'#60a5fa'},{s:'ביקש פרטים נוספים בוואטסאפ',c:'#4ade80'},{s:'פולואפ',c:'#fbbf24'},{s:'לא רלוונטי',c:'#f87171'},{s:'נמכר',c:'#d4ff5c'}];
   const sbEl=document.getElementById('status-bars');
   if(sbEl)sbEl.innerHTML=statuses.map(({s,c})=>{
