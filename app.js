@@ -29,7 +29,11 @@ function goPage(p){
   const total=Math.ceil(getFiltered().length/PAGE_SIZE)||1;
   currentPage=Math.max(1,Math.min(p,total));
   renderTable();
+  // Scroll to top - works on both desktop and mobile
+  window.scrollTo(0,0);
   document.querySelector('.main-area')?.scrollTo(0,0);
+  document.querySelector('.cards-wrap')?.scrollTo(0,0);
+  document.querySelector('#view-leads')?.scrollTo(0,0);
 }
 
 const HEB_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
@@ -321,13 +325,15 @@ function renderAnalytics(){
   const totalInc=l.filter(x=>x.income&&x.status==='נמכר').reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const avgInc=reg>0?Math.round(totalInc/reg):0;
   const costPerLead=total>0&&budget>0?Math.round(budget/total):0;
+  const totalSales=l.filter(x=>x.status==='נמכר'&&x.income).reduce((s,x)=>s+(parseFloat(x.income)||0),0);
   const kpiEl=document.getElementById('kpi-row');
   if(kpiEl)kpiEl.innerHTML=`
     ${kpiCard('סה"כ לידים',total,'','var(--blue)')}
     ${kpiCard('נמכרו',reg,reg+' מתוך '+total,'var(--green)')}
     ${kpiCard('המרה',conv+'%','','var(--accent)')}
     ${kpiCard('עלות לליד',costPerLead>0?'₪'+costPerLead:'—','','var(--amber)')}
-    ${kpiCard('ממוצע עסקה',avgInc>0?'₪'+avgInc.toLocaleString():'—','','var(--green)')}`;
+    ${kpiCard('ממוצע עסקה',avgInc>0?'₪'+avgInc.toLocaleString():'—','','var(--green)')}
+    ${kpiCard('סה"כ מכירות',totalSales>0?'₪'+totalSales.toLocaleString():'—','','var(--green)')}`;
   const statuses=[{s:'ליד חדש',c:'#60a5fa'},{s:'ביקש פרטים נוספים בוואטסאפ',c:'#4ade80'},{s:'פולואפ',c:'#fbbf24'},{s:'לא רלוונטי',c:'#f87171'},{s:'נמכר',c:'#d4ff5c'}];
   const sbEl=document.getElementById('status-bars');
   if(sbEl)sbEl.innerHTML=statuses.map(({s,c})=>{
