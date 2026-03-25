@@ -645,3 +645,26 @@ body.light-mode .sync-status.saving{color:#92600a}
   #filter-status{flex-shrink:0;font-size:11px;padding:6px 4px;max-width:90px}
   .btn-add{flex-shrink:0;font-size:12px;padding:6px 10px;white-space:nowrap}
 }
+
+
+/* ── SIDEBAR CONTROLS ROW ── */
+.sidebar-controls-row{display:flex;align-items:center;gap:5px;margin-bottom:.5rem}
+.sidebar-controls-row .month-select{font-size:11px;padding:5px 4px;flex-shrink:0;max-width:80px}
+.sidebar-controls-row .search-wrap{position:relative;flex:1}
+.sidebar-controls-row .search-wrap input{width:100%;padding:5px 6px 5px 22px;font-size:11px}
+.sidebar-controls-row .search-icon{position:absolute;left:5px;top:50%;transform:translateY(-50%);opacity:.4}
+.sidebar-controls-row select:last-of-type{font-size:11px;padding:5px 3px;flex-shrink:0;max-width:65px}
+
+/* On desktop: hide mobile search/status (use top-bar ones) */
+@media(min-width:681px){
+  .sidebar-controls-row .search-wrap{display:none}
+  .sidebar-controls-row select:last-of-type{display:none}
+  .sidebar-controls-row .btn-add{display:none}
+  .sidebar-controls-row .month-select{max-width:100%;flex:1}
+}
+
+/* On mobile: hide top-bar (everything is in sidebar now) */
+@media(max-width:680px){
+  .top-bar{display:none!important}
+  .sidebar-controls-row{flex-wrap:nowrap}
+}
