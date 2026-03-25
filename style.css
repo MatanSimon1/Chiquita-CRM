@@ -671,3 +671,11 @@ body.light-mode .sync-status.saving{color:#92600a}
 
 /* Search expand animation */
 .sidebar-controls-row .search-wrap input{transition:width .2s ease;min-width:0}
+
+/* Sidebar controls row - final fix */
+.sidebar-controls-row{display:flex;flex-direction:row-reverse;align-items:center;gap:5px;margin-bottom:.5rem}
+.sidebar-controls-row .month-select{flex:0 0 75px;font-size:11px;padding:6px 4px}
+.sidebar-controls-row .search-wrap{flex:1;min-width:0}
+.sidebar-controls-row .search-wrap input{width:100%;font-size:12px}
+.sidebar-controls-row #filter-status{flex:0 0 68px;font-size:11px;padding:6px 3px}
+.sidebar-controls-row .btn-add{flex:0 0 32px;padding:6px;font-size:14px;font-weight:700;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
