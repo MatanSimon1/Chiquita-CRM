@@ -708,3 +708,8 @@ body.light-mode .sync-status.saving{color:#92600a}
 }
 /* Remove old conflicting rules */
 .desktop-period-row,.mobile-controls-row2{display:none!important}
+
+/* Pagination bigger on mobile */
+@media(max-width:680px){
+  #pagination-bar button{padding:7px 12px!important;font-size:13px!important;min-width:36px}
+}
